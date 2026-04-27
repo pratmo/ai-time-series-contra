@@ -60,4 +60,4 @@ Python, TensorFlow, Keras, scikit-learn, pandas, NumPy, matplotlib. Trained on K
 
 ## Author
 
-Prathik. M.Sc. Data Science (Symbiosis International University).
+Prathik Mohan. M.Sc. Data Science (Symbiosis International University).
