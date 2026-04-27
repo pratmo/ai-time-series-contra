@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local artefacts
+*.log
+*.tmp
