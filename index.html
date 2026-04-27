@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Behavioral Augmented CNN-LSTM Forecasting of the Bahrain All Share Index | Prathik</title>
+<meta name="description" content="A deep learning forecaster that beats its own price only baseline by 26.1 percent RMSE by adding a single behavioral feature derived from how retail traders misread candlestick patterns.">
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --ink: #0f172a;
+    --ink-soft: #475569;
+    --ink-muted: #64748b;
+    --line: #e2e8f0;
+    --teal: #06b6d4;
+    --teal-soft: #ecfeff;
+    --coral: #f43f5e;
+    --coral-soft: #fff1f2;
+    --accent: #4f46e5;
+    --accent-soft: #eef2ff;
+    --good: #059669;
+    --good-soft: #ecfdf5;
+    --warn: #d97706;
+    --warn-soft: #fffbeb;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  main p, main li {
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+  main .lead {
+    text-align: justify;
+    hyphens: auto;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+  header {
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    border-bottom: 1px solid var(--line);
+    padding: 64px 0 48px;
+  }
+  header .wrap { display: flex; flex-direction: column; gap: 16px; }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  h1 {
+    font-size: 36px;
+    line-height: 1.2;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    font-size: 18px;
+    color: var(--ink-soft);
+    margin: 0;
+    max-width: 70ch;
+    text-align: justify;
+    hyphens: auto;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 14px;
+    color: var(--ink-muted);
+    margin-top: 8px;
+  }
+  .meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .meta strong { color: var(--ink); font-weight: 600; }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+  }
+  .btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .btn.primary {
+    background: var(--ink);
+    color: white;
+    border-color: var(--ink);
+  }
+  .btn.primary:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  main { padding: 48px 0 80px; }
+  section { margin-bottom: 56px; }
+  h2 {
+    font-size: 24px;
+    margin: 0 0 16px;
+    letter-spacing: -0.005em;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 24px 0 8px;
+  }
+  p { margin: 0 0 14px; }
+  p + p { margin-top: 0; }
+  .lead {
+    font-size: 17px;
+    color: var(--ink-soft);
+  }
+  figure {
+    margin: 24px 0;
+    text-align: center;
+  }
+  figure img, figure svg, figure object {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+  figcaption {
+    font-size: 13px;
+    color: var(--ink-muted);
+    margin-top: 10px;
+    font-style: italic;
+    text-align: center;
+  }
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 20px 0;
+    font-size: 15px;
+  }
+  .callout strong { color: var(--accent); }
+  .step-grid {
+    display: grid;
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 14px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .step .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .step h4 {
+    margin: 0 0 4px;
+    font-size: 15px;
+  }
+  .step p {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin: 24px 0;
+  }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px;
+    background: var(--surface);
+  }
+  .card.baseline { border-left: 3px solid var(--teal); }
+  .card.contrarian { border-left: 3px solid var(--coral); }
+  .card h4 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted);
+    font-weight: 600;
+  }
+  .card .label {
+    font-size: 13px;
+    margin: 0 0 14px;
+    color: var(--ink-muted);
+    text-align: left;
+  }
+  .card img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin: 8px 0 0;
+    display: block;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 15px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+  }
+  th {
+    background: #f8fafc;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; }
+  .winner { background: var(--good-soft); font-weight: 600; }
+  .winner td:first-child::before { content: "\2713  "; color: var(--good); }
+  .delta-good { color: var(--good); font-weight: 600; }
+  ul.clean {
+    padding-left: 20px;
+    margin: 12px 0;
+  }
+  ul.clean li {
+    margin-bottom: 8px;
+    color: var(--ink-soft);
+  }
+  ul.clean li strong { color: var(--ink); }
+  code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 32px 0 48px;
+    margin-top: 48px;
+    font-size: 14px;
+    color: var(--ink-muted);
+    text-align: center;
+  }
+  footer a { color: var(--ink-soft); }
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 24px 0 32px;
+    font-size: 14px;
+  }
+  .toc strong {
+    display: block;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .toc ol {
+    margin: 0;
+    padding-left: 20px;
+    columns: 2;
+    column-gap: 24px;
+  }
+  @media (max-width: 600px) {
+    .toc ol { columns: 1; }
+  }
+  .toc li { padding: 2px 0; }
+  .toc a { color: var(--ink-soft); text-decoration: none; }
+  .toc a:hover { color: var(--accent); text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="eyebrow">Deep Learning &middot; Time Series Forecasting</span>
+    <h1>Behavioral Augmented CNN-LSTM Forecasting of the Bahrain All Share Index</h1>
+    <p class="subtitle">
+      A deep learning forecaster that beats its own price only baseline by 26.1 percent RMSE by adding a single behavioral feature derived from how retail traders misread candlestick patterns.
+    </p>
+    <div class="meta">
+      <span><strong>Author</strong> Prathik (M.Sc. Data Science)</span>
+      <span><strong>Stack</strong> Python, TensorFlow, Keras, scikit-learn</span>
+      <span><strong>Compute</strong> Kaggle (NVIDIA P100 GPU)</span>
+      <span><strong>Dataset</strong> BAX, 2010 to 2025, about 3,659 daily rows</span>
+    </div>
+    <div class="links">
+      <a class="btn primary" href="https://github.com/pratmo/ai-time-series-contra" target="_blank" rel="noopener">View source on GitHub</a>
+      <a class="btn" href="https://github.com/pratmo/ai-time-series-contra/blob/main/notebooks/baseline.ipynb" target="_blank" rel="noopener">Baseline notebook</a>
+      <a class="btn" href="https://github.com/pratmo/ai-time-series-contra/blob/main/notebooks/contrarian.ipynb" target="_blank" rel="noopener">Contrarian notebook</a>
+      <a class="btn" href="docs/project_report.pdf" target="_blank" rel="noopener">Full project report</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <nav class="toc" aria-label="Table of contents">
+      <strong>Contents</strong>
+      <ol>
+        <li><a href="#problem">The problem</a></li>
+        <li><a href="#idea">The contrarian idea</a></li>
+        <li><a href="#architecture">System architecture</a></li>
+        <li><a href="#how">How it works, step by step</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#interpretation">What this means</a></li>
+        <li><a href="#limits">Honest limitations</a></li>
+        <li><a href="#stack">Tools and references</a></li>
+      </ol>
+    </nav>
+
+    <section id="problem">
+      <h2>1. The problem</h2>
+      <p class="lead">
+        Forecasting financial markets is hard because prices are non stationary, non linear, and shaped by both quantitative dynamics and human psychology. Most forecasting research focuses only on the first half. This project models the second half too.
+      </p>
+      <p>
+        The Bahrain All Share Index is a small but volatile market that mirrors many emerging markets in one important way. Retail participation is significant. Retail traders rely heavily on candlestick chart patterns such as Doji, Hammer, Engulfing, and Harami to make decisions. A 2024 SEBI report documented that <strong>93 percent of individual equity F&amp;O traders lost money over FY22 to FY24</strong>, with cumulative losses exceeding 1.8 lakh crore rupees. Despite reading the same charts, the same patterns, and the same signals, retail traders systematically lose.
+      </p>
+      <p>
+        That regularity is the opening this project tries to exploit.
+      </p>
+    </section>
+
+    <section id="idea">
+      <h2>2. The contrarian idea</h2>
+      <p>
+        Conventional candlestick literature reads patterns as future direction signals. A Doji means indecision, prepare for reversal. A Hammer means bullish reversal coming. When millions of retail traders act on these textbook interpretations simultaneously, they create a predictable crowd. And in markets, predictable crowds get reversed.
+      </p>
+
+      <figure>
+        <object data="assets/contrarian_strategy.svg" type="image/svg+xml" style="border:none;background:transparent" aria-label="Doji and Hammer pattern with conventional and contrarian interpretations"></object>
+        <figcaption>Figure 1. The contrarian reading. The same pattern that triggers a textbook sell is treated by the model as a candidate buy signal.</figcaption>
+      </figure>
+
+      <p>
+        The model in this project does not hard code a contrarian rule. Instead, for every trading day it computes which pattern formed in the two prior candles and feeds that label, one hot encoded, alongside the price history. The neural network is then free to learn what those patterns actually predict, which, if the contrarian hypothesis holds, will diverge from the textbook reading.
+      </p>
+
+      <div class="callout">
+        <strong>The bet in one sentence.</strong> The pattern label carries information about retail behavior, which carries information about near term price moves, which a CNN-LSTM can learn to exploit.
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2>3. System architecture</h2>
+      <p>
+        The pipeline runs twice with the same architecture and the same hyperparameter search. Once with the contrarian path turned on, and once with it off. Comparing the two outputs is what tells us whether the behavioral feature actually helps.
+      </p>
+
+      <figure>
+        <object data="assets/architecture.svg" type="image/svg+xml" style="border:none;background:transparent;max-width:520px" aria-label="System architecture diagram"></object>
+        <figcaption>Figure 2. Two parallel feature paths (price in teal, contrarian patterns in coral) feed a shared CNN-LSTM model. The bottom row shows the two runs being compared.</figcaption>
+      </figure>
+
+      <p>
+        Teal blocks form the standard, price only path that any time series forecaster would have. Coral blocks form the novel contrarian path. Gray blocks are shared infrastructure. The visual story, with coral entering at the top and producing a 26 percent lower RMSE at the bottom, is the contribution of this project.
+      </p>
+    </section>
+
+    <section id="how">
+      <h2>4. How it works, step by step</h2>
+      <p>
+        Each block in the architecture maps to a specific implementation step. Reading them in order is the simplest way to understand what the code does.
+      </p>
+
+      <div class="step-grid">
+        <div class="step">
+          <span class="num">1</span>
+          <div>
+            <h4>Pattern detection from prior candles</h4>
+            <p>For each date <em>t</em>, look at the OHLC values of the two previous candles (<em>t minus 2</em> and <em>t minus 1</em>) and apply rule based logic to assign one of 11 labels. The labels are Doji, Hammer, InvertedHammer, EngulfingBull, EngulfingBear, Piercing Line, Dark Cloud Cover, Bullish Harami, Bearish Harami, SmallBullish, and SmallBearish. Crucially, the pattern for day <em>t</em> uses only data from days at or before <em>t minus 1</em>, so there is no look ahead leakage.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="num">2</span>
+          <div>
+            <h4>One hot encoding</h4>
+            <p>String labels are converted into 11 dimensional binary vectors. For example, "Hammer" might become [0,0,1,0,0,0,0,0,0,0,0]. This is the format neural networks consume.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="num">3</span>
+          <div>
+            <h4>Sliding window builder</h4>
+            <p>For each training sample, take the past 60 scaled close prices as the price channel and tile the target day's pattern vector across 60 rows as the pattern channels. The final shape per sample is <code>(60, 12)</code>, that is 60 time steps with one price column and 11 pattern flag columns. This is how the model sees both data streams simultaneously at every convolution step.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="num">4</span>
+          <div>
+            <h4>Hybrid CNN-LSTM</h4>
+            <p>The <strong>Conv1D</strong> layer with kernel size 2 scans the window and learns short, repeating shapes. <strong>MaxPooling1D</strong> halves the sequence and keeps the strongest local activations. The <strong>LSTM</strong> with 64 units walks through what is left, using its forget, input, and output gates to decide what to remember across the 60 day window. <strong>Dropout</strong> at 0.2 prevents memorization. <strong>Dense(1)</strong> outputs the predicted next day scaled close.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="num">5</span>
+          <div>
+            <h4>Walk forward cross validation</h4>
+            <p>The training block is split into four chronological segments A, B, C, and D. The model first trains on A and validates on B, then trains on A plus B and validates on C, and finally trains on A plus B plus C and validates on D. Time order is preserved at every step. This rolling origin scheme is the only honest way to do cross validation on a time series, since random k fold would leak the future into training.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="num">6</span>
+          <div>
+            <h4>Recursive 15 day forecast</h4>
+            <p>At inference, the trained model only knows how to predict one day ahead. To forecast 15 days, the code predicts day 1, appends that prediction to the input window, drops the oldest value, and predicts day 2. This is repeated 15 times. Pattern flags for the first forecast day come from real history. For subsequent days they fall back to zeros, since no real candles exist yet.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="num">7</span>
+          <div>
+            <h4>Evaluation</h4>
+            <p>The 15 day forecast is compared against actual prices on the held out 20 percent test block using MAE, RMSE, and MAPE. The whole pipeline is then run a second time with the pattern channels disabled. That is the baseline. The two are compared head to head.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="results">
+      <h2>5. Results</h2>
+      <p>
+        Both models were trained on the same 80 percent of BAX history (2010 to roughly mid 2022) and evaluated on the same 15 day window starting March 20, 2022.
+      </p>
+
+      <div class="compare-grid">
+        <div class="card baseline">
+          <h4>Baseline</h4>
+          <p class="label">Price only. No behavioral feature.</p>
+          <img src="assets/baseline_forecast.png" alt="Baseline forecast plot. Orange forecast line stays flat near 1925 while actual climbs from 1975 to 2120.">
+        </div>
+        <div class="card contrarian">
+          <h4>Contrarian</h4>
+          <p class="label">Price plus 11 pattern channels.</p>
+          <img src="assets/contrarian_forecast.png" alt="Contrarian forecast plot. Orange forecast line tracks actual closely in the first half of the horizon.">
+        </div>
+      </div>
+
+      <p>
+        The visual difference is clear. The baseline forecast (top) flatlines around 1925 while the actual price climbs to 2120. The model never adapts. The contrarian forecast (bottom) starts much closer to the actual line and tracks it well for the first seven days before drifting in the back half of the horizon.
+      </p>
+
+      <h3>Test metrics</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>MAE</th>
+            <th>RMSE</th>
+            <th>MAPE</th>
+            <th>vs. baseline</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Baseline (price only)</td>
+            <td class="num">127.57</td>
+            <td class="num">136.93</td>
+            <td class="num">6.15%</td>
+            <td>Reference</td>
+          </tr>
+          <tr class="winner">
+            <td>Contrarian (price plus patterns)</td>
+            <td class="num">87.33</td>
+            <td class="num">101.17</td>
+            <td class="num">4.19%</td>
+            <td class="delta-good">26.1% lower RMSE</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        The headline result is that <strong>RMSE drops by 26.1 percent</strong> when the behavioral feature is added. MAE drops by 31.5 percent, and MAPE by 31.9 percent. All three metrics improve by similar magnitudes, which is a good sign. The gain is not a single metric artifact.
+      </p>
+    </section>
+
+    <section id="interpretation">
+      <h2>6. What this means</h2>
+      <p>
+        A few things are worth pulling out from these numbers.
+      </p>
+      <ul class="clean">
+        <li><strong>The pattern channel is doing real work.</strong> The architecture, hyperparameters, training procedure, scaling, and data are otherwise identical between the two runs. The only difference is the 11 pattern columns. A 26 percent RMSE reduction from one feature group is meaningful in time series forecasting.</li>
+        <li><strong>The contrarian framing is empirical, not ideological.</strong> The model is not told to do the opposite of textbook. It just sees the pattern label as a feature and learns from data what comes next. The fact that this helps is consistent with the contrarian hypothesis. The model would also pick up any non contrarian regularity if one existed.</li>
+        <li><strong>The first half of the forecast is much better than the second half.</strong> This is visible in both plots, and it is explained by the recursive setup. Errors compound across 15 sequential predictions, and pattern flags fall back to zero after day 1 since future candles are not observed. A multi step model trained directly on 15 day targets, or a dynamic pattern simulator, would likely flatten this drift.</li>
+      </ul>
+    </section>
+
+    <section id="limits">
+      <h2>7. Honest limitations</h2>
+      <p>
+        A real piece of work is not a sales pitch. These caveats are worth stating openly.
+      </p>
+      <ul class="clean">
+        <li><strong>Single test window.</strong> Both metrics come from one 15 day held out slice starting March 2022. A more rigorous validation would re run the same comparison across multiple rolling windows and report the distribution. The project report itself recommends this as the next step.</li>
+        <li><strong>GPU non determinism.</strong> TensorFlow on GPU is not fully reproducible even with fixed seeds. Re running this notebook produces meaningfully different RMSE values run to run. The 26 percent improvement reported here is from the run preserved in the saved notebook outputs and matches the project report figures. Other runs of the same code may show smaller, or occasionally negative, improvements.</li>
+        <li><strong>Naive baseline outperforms both.</strong> A trivial "tomorrow equals today" predictor scores RMSE 8.7 on this same window, far better than either CNN-LSTM. This is because recursive multi step forecasting compounds errors while the naive predictor only ever has to be right one step ahead. The CNN-LSTM models are still useful for capturing structure, but in a real trading context this is a serious benchmark to beat.</li>
+        <li><strong>Pattern detection is rule based and crude.</strong> The 11 patterns are detected with simple body and shadow ratio heuristics. A learned pattern detector or a richer behavioral feature set (volume, order flow, sentiment) would likely help further.</li>
+        <li><strong>BAX is a thinly traded market.</strong> Findings here may not transfer to liquid markets like the S&amp;P 500 or Nifty 50 without re validation.</li>
+      </ul>
+    </section>
+
+    <section id="stack">
+      <h2>8. Tools and references</h2>
+      <p>
+        Built with Python, TensorFlow, Keras, scikit-learn, pandas, NumPy, and matplotlib. Trained on Kaggle free P100 GPU. Data was sourced from Investing.com.
+      </p>
+      <p>
+        The behavioral framing is grounded in <a href="https://www.sebi.gov.in" target="_blank" rel="noopener">SEBI 2024 report</a> on retail F&amp;O trader losses. The CNN-LSTM hybrid follows the now standard pattern in financial time series literature of using convolutions for local structure and recurrence for long range dependencies.
+      </p>
+      <p>
+        The full project report, including the literature review, comparison against ARIMA, SARIMA, XGBoost, and Random Forest baselines, and chapter by chapter methodology, is available <a href="docs/project_report.pdf">here</a>. The two Kaggle notebooks (<a href="https://github.com/pratmo/ai-time-series-contra/blob/main/notebooks/baseline.ipynb" target="_blank" rel="noopener">baseline</a> and <a href="https://github.com/pratmo/ai-time-series-contra/blob/main/notebooks/contrarian.ipynb" target="_blank" rel="noopener">contrarian</a>) are rendered with all original outputs (plots, training history, printed metrics) on GitHub.
+      </p>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      Prathik &middot; M.Sc. Data Science &middot; <a href="https://github.com/pratmo/ai-time-series-contra" target="_blank" rel="noopener">Source on GitHub</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
