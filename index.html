@@ -548,7 +548,7 @@
         <li><strong>GPU non determinism.</strong> TensorFlow on GPU is not fully reproducible even with fixed seeds. Re running this notebook produces meaningfully different RMSE values run to run. The 26 percent improvement reported here is from the run preserved in the saved notebook outputs and matches the project report figures. Other runs of the same code may show smaller, or occasionally negative, improvements.</li>
         <li><strong>Naive baseline outperforms both.</strong> A trivial "tomorrow equals today" predictor scores RMSE 8.7 on this same window, far better than either CNN-LSTM. This is because recursive multi step forecasting compounds errors while the naive predictor only ever has to be right one step ahead. The CNN-LSTM models are still useful for capturing structure, but in a real trading context this is a serious benchmark to beat.</li>
         <li><strong>Pattern detection is rule based and crude.</strong> The 11 patterns are detected with simple body and shadow ratio heuristics. A learned pattern detector or a richer behavioral feature set (volume, order flow, sentiment) would likely help further.</li>
-        <li><strong>BAX is a thinly traded market.</strong> Findings here may not transfer to liquid markets like the S&amp;P 500 or Nifty 50 without re validation.</li>
+        <li><strong>BAX is a thinly traded market.</strong> Findings here may not transfer to liquid markets like the S&amp;P 500 or Nifty 50 without re-validation.</li>
       </ul>
     </section>
 
@@ -558,7 +558,7 @@
         Built with Python, TensorFlow, Keras, scikit-learn, pandas, NumPy, and matplotlib. Trained on Kaggle free P100 GPU. Data was sourced from Investing.com.
       </p>
       <p>
-        The behavioral framing is grounded in <a href="https://www.sebi.gov.in" target="_blank" rel="noopener">SEBI 2024 report</a> on retail F&amp;O trader losses. The CNN-LSTM hybrid follows the now standard pattern in financial time series literature of using convolutions for local structure and recurrence for long range dependencies.
+        The behavioral framing is grounded in <a href="https://www.sebi.gov.in/media-and-notifications/press-releases/sep-2024/updated-sebi-study-reveals-93-of-individual-traders-incurred-losses-in-equity-fando-between-fy22-and-fy24-aggregate-losses-exceed-1-8-lakh-crores-over-three-years_86906.html" target="_blank" rel="noopener">SEBI 2024 report</a> on retail F&amp;O trader losses. The CNN-LSTM hybrid follows the now standard pattern in financial time series literature of using convolutions for local structure and recurrence for long range dependencies.
       </p>
       <p>
         The full project report, including the literature review, comparison against ARIMA, SARIMA, XGBoost, and Random Forest baselines, and chapter by chapter methodology, is available <a href="docs/project_report.pdf">here</a>. The two Kaggle notebooks (<a href="https://github.com/pratmo/ai-time-series-contra/blob/main/notebooks/baseline.ipynb" target="_blank" rel="noopener">baseline</a> and <a href="https://github.com/pratmo/ai-time-series-contra/blob/main/notebooks/contrarian.ipynb" target="_blank" rel="noopener">contrarian</a>) are rendered with all original outputs (plots, training history, printed metrics) on GitHub.
