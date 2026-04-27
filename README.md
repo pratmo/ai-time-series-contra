@@ -1,4 +1,9 @@
 # Behavioral Augmented CNN-LSTM Forecasting of the Bahrain All Share Index
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-FF6F00?logo=tensorflow&logoColor=white)
+![Compute](https://img.shields.io/badge/GPU-Kaggle%20P100-20BEFF?logo=kaggle&logoColor=white)
+![Dataset](https://img.shields.io/badge/Data-BAX%20Index-1565C0)
+![License](https://img.shields.io/badge/License-MIT-green)
 
 A deep learning forecaster that beats its own price only baseline by 26.1 percent RMSE by adding a single behavioral feature derived from how retail traders misread candlestick patterns.
 
