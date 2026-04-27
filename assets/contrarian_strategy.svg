@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 360" role="img" aria-labelledby="contitle condesc">
+  <title id="contitle">Contrarian strategy for candlestick patterns</title>
+  <desc id="condesc">Diagram showing Doji and Hammer candlestick patterns alongside their conventional retail-trader interpretation (sell signal) and the contrarian interpretation (buy signal).</desc>
+  <defs>
+    <style>
+      .lab { font: 600 14px system-ui, -apple-system, sans-serif; fill: #0f172a; }
+      .conv { font: 600 13px system-ui, -apple-system, sans-serif; fill: #dc2626; }
+      .contra { font: 600 13px system-ui, -apple-system, sans-serif; fill: #059669; }
+      .head { font: 700 16px system-ui, -apple-system, sans-serif; fill: #0f172a; }
+      .candle { stroke: #0f172a; stroke-width: 2; fill: #0f172a; }
+      .wick { stroke: #0f172a; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <text class="head" x="340" y="30" text-anchor="middle">Contrarian Strategy for Candlestick Patterns</text>
+
+  <text class="lab" x="170" y="60" text-anchor="middle">Doji Pattern</text>
+  <text class="conv" x="170" y="90" text-anchor="middle">Conventional: Reversal (Sell)</text>
+  <line class="wick" x1="170" y1="115" x2="170" y2="215"/>
+  <line class="wick" x1="145" y1="165" x2="195" y2="165"/>
+  <text class="contra" x="170" y="245" text-anchor="middle">Contrarian: Continuation (Buy)</text>
+
+  <text class="lab" x="510" y="60" text-anchor="middle">Hammer Pattern</text>
+  <text class="conv" x="510" y="90" text-anchor="middle">Conventional: Reversal (Sell)</text>
+  <rect class="candle" x="495" y="110" width="30" height="50"/>
+  <line class="wick" x1="510" y1="160" x2="510" y2="215"/>
+  <text class="contra" x="510" y="245" text-anchor="middle">Contrarian: Continuation (Buy)</text>
+
+  <line x1="40" y1="285" x2="640" y2="285" stroke="#cbd5e1" stroke-width="1"/>
+  <text class="lab" x="340" y="315" text-anchor="middle" font-style="italic">When 93% of retail traders act on the same textbook signal, the market</text>
+  <text class="lab" x="340" y="335" text-anchor="middle" font-style="italic">often moves the opposite way. The contrarian feature exploits this.</text>
+</svg>
